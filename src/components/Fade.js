@@ -21,7 +21,10 @@ const Fade = props => {
       baseClass={base_class}
       baseClassActive={base_class_active}
       in={is_in}
-      {...omit(['setProps'], otherProps)}
+      {...omit(
+        ['setProps', 'persistence', 'persistence_type', 'persisted_props'],
+        otherProps
+      )}
       data-dash-is-loading={
         (loading_state && loading_state.is_loading) || undefined
       }
@@ -29,6 +32,11 @@ const Fade = props => {
       {children}
     </RSFade>
   );
+};
+
+Fade.defaultProps = {
+  persisted_props: ['is_in'],
+  persistence_type: 'local'
 };
 
 Fade.propTypes = {
@@ -126,7 +134,36 @@ Fade.propTypes = {
      * Holds the name of the component that is loading
      */
     component_name: PropTypes.string
-  })
+  }),
+
+  /**
+   * Used to allow user interactions in this component to be persisted when
+   * the component - or the page - is refreshed. If `persisted` is truthy and
+   * hasn't changed from its previous value, a `value` that the user has
+   * changed while using the app will keep that change, as long as
+   * the new `value` also matches what was given originally.
+   * Used in conjunction with `persistence_type`.
+   */
+  persistence: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.string,
+    PropTypes.number
+  ]),
+
+  /**
+   * Properties whose user interactions will persist after refreshing the
+   * component or the page. Since only `value` is allowed this prop can
+   * normally be ignored.
+   */
+  persisted_props: PropTypes.arrayOf(PropTypes.oneOf(['is_in'])),
+
+  /**
+   * Where persisted user changes will be stored:
+   * memory: only kept in memory, reset on page refresh.
+   * local: window.localStorage, data is kept after the browser quit.
+   * session: window.sessionStorage, data is cleared once the browser quit.
+   */
+  persistence_type: PropTypes.oneOf(['local', 'session', 'memory'])
 };
 
 export default Fade;
